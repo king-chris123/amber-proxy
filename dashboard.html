@@ -1,45 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Live Dashboard</title>
-  <style>
-    body {
-      background-color: #121212;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2em;
-    }
-    .section {
-      margin-bottom: 2em;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Amber Price</title>
+<style>
+  body { background: #121212; color: white; font-family: Arial, sans-serif; padding: 20px; }
+</style>
 </head>
 <body>
-  <h1>⚡ Live Dashboard</h1>
-  <div class="section">Amber price: <span id="amber"></span></div>
-  <div class="section">BTC (AUD): <span id="btc"></span></div>
-  <div class="section">CRO (AUD): <span id="cro"></span></div>
-  <div class="section">Melbourne weather: <span id="weather"></span></div>
-  <div class="section">⏱️ Last updated: <span id="updated"></span></div>
+  <h1>Amber Current Price</h1>
+  <div id="price">Loading...</div>
 
   <script>
-    async function refresh() {
-      const amber = await fetch('/amber-price').then(r => r.json()).catch(() => null);
-      const btc = await fetch('/bitcoin').then(r => r.json()).catch(() => null);
-      const cro = await fetch('/cro').then(r => r.json()).catch(() => null);
-      const weather = await fetch('/weather').then(r => r.text()).catch(() => null);
-
-      document.getElementById('amber').textContent = amber?.perKwh?.toFixed(2) + ' ¢/kWh' || '⚠️';
-      document.getElementById('btc').textContent = btc?.bitcoin?.aud?.toLocaleString() || '⚠️';
-      document.getElementById('cro').textContent = cro?.['crypto-com-chain']?.aud?.toFixed(4) || '⚠️';
-      document.getElementById('weather').textContent = weather || '⚠️';
-      document.getElementById('updated').textContent = new Date().toLocaleTimeString();
+    async function getPrice() {
+      try {
+        const res = await fetch('/amber-price');
+        const data = await res.json();
+        if (data.currentPricePerKWh) {
+          document.getElementById('price').textContent = `${data.currentPricePerKWh.toFixed(2)} cents per kWh`;
+        } else {
+          document.getElementById('price').textContent = 'No price data available';
+        }
+      } catch {
+        document.getElementById('price').textContent = 'Error fetching price';
+      }
     }
-
-    refresh();
-    setInterval(refresh, 60_000);
+    getPrice();
+    setInterval(getPrice, 60000); // Refresh every 60 seconds
   </script>
 </body>
 </html>
