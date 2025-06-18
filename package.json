@@ -1,7 +1,7 @@
 {
-  "name": "amber-dashboard",
+  "name": "amber-price-dashboard",
   "version": "1.0.0",
-  "description": "Amber + Crypto + Weather Dashboard",
+  "description": "Simple server to fetch Amber electricity price",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
