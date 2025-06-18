@@ -1,10 +1,17 @@
 const express = require('express');
 const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const AMBER_API_KEY = 'psk_c97ca862a28306694cbd262795ed7cc4';
+
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
 
 app.get('/amber-price', async (req, res) => {
   try {
