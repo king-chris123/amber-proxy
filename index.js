@@ -5,19 +5,20 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ Your Amber API key
 const AMBER_API_KEY = 'psk_c97ca862a28306694cbd262795ed7cc4';
 
-// Serve the dashboard.html file on root URL
+// Serve the dashboard HTML file
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// Proxy endpoint to get Amber current price
+// Amber electricity price endpoint
 app.get('/amber-price', async (req, res) => {
   try {
     const response = await fetch('https://api.amber.com.au/v1/currentPrice', {
       headers: {
-        'Authorization': `Bearer ${AMBER_API_KEY}`
+        'x-api-key': AMBER_API_KEY
       }
     });
     const data = await response.json();
