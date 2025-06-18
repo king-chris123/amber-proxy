@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Amber Electricity + Crypto + Weather Dashboard</title>
+<style>
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .widget {
+    background: #222;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin: 10px auto;
+    max-width: 400px;
+  }
+  .widget h2 {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  .value {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  .small {
+    font-size: 0.9rem;
+    color: #bbb;
+    margin-top: 4px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.85rem;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<h1>Live Amber Electricity + Crypto + Weather</h1>
+
+<div class="widget" id="amber-widget">
+  <h2>Amber Electricity Price</h2>
+  <div class="value" id="amber-price">Loading...</div>
+  <div class="small" id="amber-renewables"></div>
+</div>
+
+<div class="widget" id="crypto-widget">
+  <h2>Crypto Prices (AUD)</h2>
+  <div>Bitcoin: <span id="btc-price">Loading...</span></div>
+  <div>CRO: <span id="cro-price">Loading...</span></div>
+</div>
+
+<div class="widget" id="weather-widget">
+  <h2>Melbourne Weather</h2>
+  <div id="weather-desc">Loading...</div>
+  <div>Temp: <span id="temp"></span>°C</div>
+  <div>Humidity: <span id="humidity"></span>%</div>
+</div>
+
+<div class="footer" id="last-updated">Last updated: --</div>
+
+<script>
+const amberUrl = '/amber-price'; // your Render backend endpoint for Amber data
+const cryptoApi = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,crypto-com-chain&vs_currencies=aud';
+const weatherApi = 'https://api.open-meteo.com/v1/forecast?latitude=-37.8136&longitude=144.9631&current_weather=true&temperature_unit=celsius';
+
+// Format time nicely
+function formatTime(date) {
+  return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+// Fetch Amber data
+async function fetchAmber() {
+  try {
+    const res = await fetch(amberUrl);
+    if(!res.ok) throw new Error('Amber fetch failed');
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      const price = data[0].perKwh.toFixed(2);
+      const renewables = data[0].renewables.toFixed(1);
+      document.getElementById('amber-price').textContent = `${price} ¢/kWh`;
+      document.getElementById('amber-renewables').textContent = `Renewables: ${renewables}%`;
+    } else {
+      document.getElementById('amber-price').textContent = 'No data';
+      document.getElementById('amber-renewables').textContent = '';
+    }
+  } catch(e) {
+    document.getElementById('amber-price').textContent = 'Error';
+    document.getElementById('amber-renewables').textContent = '';
+  }
+}
+
+// Fetch crypto prices
+async function fetchCrypto() {
+  try {
+    const res = await fetch(cryptoApi);
+    if(!res.ok) throw new Error('Crypto fetch failed');
+    const data = await res.json();
+    document.getElementById('btc-price').textContent = data.bitcoin.aud.toFixed(2);
+    document.getElementById('cro-price').textContent = data['crypto-com-chain'].aud.toFixed(4);
+  } catch(e) {
+    document.getElementById('btc-price').textContent = 'Error';
+    document.getElementById('cro-price').textContent = 'Error';
+  }
+}
+
+// Fetch weather data
+async function fetchWeather() {
+  try {
+    const res = await fetch(weatherApi);
+    if(!res.ok) throw new Error('Weather fetch failed');
+    const data = await res.json();
+    if(data.current_weather) {
+      const w = data.current_weather;
+      document.getElementById('weather-desc').textContent = w.weathercode ? `Weather code: ${w.weathercode}` : 'Current weather';
+      document.getElementById('temp').textContent = w.temperature.toFixed(1);
+      document.getElementById('humidity').textContent = w.humidity ?? 'N/A';
+    } else {
+      document.getElementById('weather-desc').textContent = 'No weather data';
+    }
+  } catch(e) {
+    document.getElementById('weather-desc').textContent = 'Error fetching weather';
+    document.getElementById('temp').textContent = '--';
+    document.getElementById('humidity').textContent = '--';
+  }
+}
+
+// Refresh everything
+async function refreshAll() {
+  await Promise.all([fetchAmber(), fetchCrypto(), fetchWeather()]);
+  document.getElementById('last-updated').textContent = 'Last updated: ' + formatTime(new Date());
+}
+
+// Initial load and then every 60 seconds
+refreshAll();
+setInterval(refreshAll, 60000);
+</script>
+
+</body>
+</html>
