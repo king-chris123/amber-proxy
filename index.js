@@ -47,6 +47,21 @@ app.get('/amber-price', async (req, res) => {
   }
 });
 
+app.get('/get-site-id', async (req, res) => {
+  try {
+    const response = await fetch('https://api.amber.com.au/v1/sites', {
+      headers: {
+        'x-api-key': AMBER_API_KEY
+      }
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching site ID:', error);
+    res.status(500).json({ error: 'Could not fetch site ID' });
+  }
+});
+
 // Other routes (BTC, CRO, weather) can remain the same
 
 app.listen(PORT, () => {
