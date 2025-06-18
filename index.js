@@ -5,7 +5,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Your Amber API key
+// Your Amber API key
 const AMBER_API_KEY = 'psk_c97ca862a28306694cbd262795ed7cc4';
 
 app.use(express.static(__dirname));
@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// 🔌 Amber electricity price
+// Amber electricity price endpoint
 app.get('/amber-price', async (req, res) => {
   try {
     const response = await fetch('https://api.amber.com.au/v1/currentPrice', {
@@ -23,6 +23,7 @@ app.get('/amber-price', async (req, res) => {
         'x-api-key': AMBER_API_KEY
       }
     });
+    if (!response.ok) throw new Error(`Amber API error: ${response.status}`);
     const data = await response.json();
     res.json(data);
   } catch (error) {
@@ -31,7 +32,7 @@ app.get('/amber-price', async (req, res) => {
   }
 });
 
-// 💰 Bitcoin price in AUD
+// Bitcoin price in AUD
 app.get('/bitcoin', async (req, res) => {
   try {
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=aud');
@@ -39,11 +40,11 @@ app.get('/bitcoin', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Bitcoin error:', error);
-    res.status(500).json({ error: 'Failed to fetch BTC price' });
+    res.status(500).json({ error: 'Failed to fetch Bitcoin price' });
   }
 });
 
-// 🪙 CRO price in AUD
+// CRO price in AUD
 app.get('/cro', async (req, res) => {
   try {
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=crypto-com-chain&vs_currencies=aud');
@@ -55,7 +56,7 @@ app.get('/cro', async (req, res) => {
   }
 });
 
-// 🌤️ Melbourne weather
+// Melbourne weather
 app.get('/weather', async (req, res) => {
   try {
     const response = await fetch('https://wttr.in/Melbourne?format=%C+%t');
@@ -63,10 +64,10 @@ app.get('/weather', async (req, res) => {
     res.send(text);
   } catch (error) {
     console.error('Weather error:', error);
-    res.status(500).send('Error fetching weather');
+    res.status(500).send('Failed to fetch weather');
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Dashboard running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
