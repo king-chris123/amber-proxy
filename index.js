@@ -4,7 +4,6 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Your Amber API key
 const AMBER_API_KEY = 'psk_c97ca862a28306694cbd262795ed7cc4';
 
 app.get('/amber-price', async (req, res) => {
@@ -14,7 +13,6 @@ app.get('/amber-price', async (req, res) => {
         'x-api-key': AMBER_API_KEY
       }
     });
-
     const data = await response.json();
     res.json(data);
   } catch (error) {
