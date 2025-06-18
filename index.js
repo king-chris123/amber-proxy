@@ -17,7 +17,7 @@ app.get('/amber-price', async (req, res) => {
   try {
     const response = await fetch('https://api.amber.com.au/v1/currentPrice', {
       headers: {
-        'x-api-key': AMBER_API_KEY
+        'Authorization': `Bearer ${AMBER_API_KEY}`
       }
     });
     const data = await response.json();
