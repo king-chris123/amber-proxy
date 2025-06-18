@@ -2,31 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Amber Price</title>
+<title>Amber Price Dashboard</title>
 <style>
-  body { background: #121212; color: white; font-family: Arial, sans-serif; padding: 20px; }
+  body { background: #121212; color: #eee; font-family: Arial, sans-serif; }
+  #price { font-size: 2rem; margin-top: 20px; }
 </style>
 </head>
 <body>
-  <h1>Amber Current Price</h1>
+  <h1>Amber Electricity Price</h1>
   <div id="price">Loading...</div>
 
   <script>
-    async function getPrice() {
+    async function fetchAmberPrice() {
       try {
         const res = await fetch('/amber-price');
         const data = await res.json();
-        if (data.currentPricePerKWh) {
-          document.getElementById('price').textContent = `${data.currentPricePerKWh.toFixed(2)} cents per kWh`;
+        if (data.error) {
+          document.getElementById('price').textContent = 'Error: ' + data.error;
         } else {
-          document.getElementById('price').textContent = 'No price data available';
+          const price = data.perKwh || data[0]?.perKwh || 'N/A';
+          document.getElementById('price').textContent = price + ' ¢/kWh';
         }
-      } catch {
-        document.getElementById('price').textContent = 'Error fetching price';
+      } catch (e) {
+        document.getElementById('price').textContent = 'Fetch error';
       }
     }
-    getPrice();
-    setInterval(getPrice, 60000); // Refresh every 60 seconds
+    fetchAmberPrice();
+    setInterval(fetchAmberPrice, 60000); // Refresh every 60s
   </script>
 </body>
 </html>
