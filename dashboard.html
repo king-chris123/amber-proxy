@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>Live Dashboard</title>
   <style>
     body {
       background-color: #121212;
@@ -11,20 +11,35 @@
       text-align: center;
       padding: 2em;
     }
+    .section {
+      margin-bottom: 2em;
+    }
   </style>
 </head>
 <body>
-  <h1>Live Dashboard</h1>
-  <div id="amber"></div>
+  <h1>⚡ Live Dashboard</h1>
+  <div class="section">Amber price: <span id="amber"></span></div>
+  <div class="section">BTC (AUD): <span id="btc"></span></div>
+  <div class="section">CRO (AUD): <span id="cro"></span></div>
+  <div class="section">Melbourne weather: <span id="weather"></span></div>
+  <div class="section">⏱️ Last updated: <span id="updated"></span></div>
 
   <script>
-    async function fetchAmber() {
-      const res = await fetch('/amber-price');
-      const data = await res.json();
-      document.getElementById('amber').textContent = `Amber Price: ${data[0]?.perKwh || 'No data'}c/kWh`;
+    async function refresh() {
+      const amber = await fetch('/amber-price').then(r => r.json()).catch(() => null);
+      const btc = await fetch('/bitcoin').then(r => r.json()).catch(() => null);
+      const cro = await fetch('/cro').then(r => r.json()).catch(() => null);
+      const weather = await fetch('/weather').then(r => r.text()).catch(() => null);
+
+      document.getElementById('amber').textContent = amber?.perKwh?.toFixed(2) + ' ¢/kWh' || '⚠️';
+      document.getElementById('btc').textContent = btc?.bitcoin?.aud?.toLocaleString() || '⚠️';
+      document.getElementById('cro').textContent = cro?.['crypto-com-chain']?.aud?.toFixed(4) || '⚠️';
+      document.getElementById('weather').textContent = weather || '⚠️';
+      document.getElementById('updated').textContent = new Date().toLocaleTimeString();
     }
-    fetchAmber();
-    setInterval(fetchAmber, 60000);
+
+    refresh();
+    setInterval(refresh, 60_000);
   </script>
 </body>
 </html>
